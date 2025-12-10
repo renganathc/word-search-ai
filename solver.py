@@ -6,12 +6,13 @@ from crossword_algorithm import find_words
 import random
 
 input_image = cv2.imread("image_samples/word_search_school.png")
-processed_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
-processed_image = cv2.adaptiveThreshold(processed_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 33, 25)
-processed_image = cv2.morphologyEx(processed_image, cv2.MORPH_CLOSE, np.ones((3,3), np.uint8))
-
 model = tf.keras.models.load_model("font_identifier.keras")
 
+def process_image(input_image):
+    processed_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
+    processed_image = cv2.adaptiveThreshold(processed_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 33, 25)
+    processed_image = cv2.morphologyEx(processed_image, cv2.MORPH_CLOSE, np.ones((3,3), np.uint8))
+    return processed_image
 
 
 def find_letter_coordinates(processed_image):
@@ -124,6 +125,7 @@ word_list = [
     'MUSIC', 'SCISSORS', 'WRITING'
 ]
 
+processed_image = process_image(input_image)
 letter_coordinates = find_letter_coordinates(processed_image)
 letter_grid = identify_letter_grid(model, processed_image, letter_coordinates)
 output = strike_words(input_image, word_list, letter_grid, letter_coordinates)
