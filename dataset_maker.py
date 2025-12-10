@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
 
-font_files = os.listdir("fonts/")
+font_files = os.listdir("datasets/fonts/")
 letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 img_size = (28, 28)
@@ -20,7 +20,7 @@ for i in font_files:
         draw = ImageDraw.Draw(img)
         
         try:
-            font = ImageFont.truetype("fonts/" + i, 24)
+            font = ImageFont.truetype("datasets/fonts/" + i, 24)
         except Exception:
             print("Error while using file ", i, " - ", Exception)
             break
