@@ -6,3 +6,7 @@ EMNISTModelTensorFlow.ipynb
 WordSearch.ipynb
 CustomFonts.zip
 CustomFonts/
+__pycache__/
+backend/__pycache__/
+.DS_Store
+backend/.DS_Store
