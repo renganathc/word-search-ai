@@ -17,33 +17,32 @@ def process_image(input_image):
 
 def find_letter_coordinates(processed_image):
     contours, _ = cv2.findContours(processed_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    total_contours, total_letters = len(contours), len(contours)
     area = 0
 
     for cnt in contours:
         area += cv2.contourArea(cnt)
 
-    area = area/len(contours)
-
+    area = area/total_contours
     letter_coordinates = dict()
-    y_top, y_bottom = -1,-1
 
-    for i in range(len(contours)):
+    for i in range(total_contours):
         if cv2.contourArea(contours[i]) < 0.1*area:
+            total_letters -= 0
             continue
         x, y, w, h = cv2.boundingRect(contours[i])
-
         pushed = False
 
         for key in letter_coordinates.keys():
-            if y + w//2 in range(key[0], key[1]):
-                y_top, y_bottom = y, y+h
+            if y + h//2 in range(key[0], key[1]):
                 letter_coordinates[key].append((x - int((w)*(0.25)), y - int(h*(0.25)), x + w + int(w*(0.25)), y + h + int(h*(0.25))))
                 pushed = True
+                break
 
         if not pushed:
-            letter_coordinates[(y, y+w)] = [(x - int(w*(0.25)), y - int(h*(0.25)), x + w + int(w*(0.25)), y + h + int(h*(0.25)))]
+            letter_coordinates[(y, y+h)] = [(x - int(w*(0.25)), y - int(h*(0.25)), x + w + int(w*(0.25)), y + h + int(h*(0.25)))]
 
-    return letter_coordinates
+    return letter_coordinates, total_contours, total_letters
             
 def identify_letter_grid(model, processed_image, letter_coordinates):
     letter_grid = list()
@@ -114,20 +113,11 @@ def strike_words(input_image, word_list, letter_grid, letter_coordinates):
 
     return output_image
 
-word_list = [
-    'DRAMA', 'HISTORY', 'NUMBERS', 'SCIENCE', 'ART',
-    'ELEMENTARY', 'HOMEWORK', 'PENCIL', 'SOCIALSTUDIES',
-    'BACKPACK', 'ENGLISH', 'LANGUAGEARTS', 'PHYSICALEDUCATION',
-    'SPELLING', 'BOOKS', 'FRIENDS', 'LEARN', 'READING',
-    'STUDENTS', 'CLASSROOM', 'GEOGRAPHY', 'LIBRARY',
-    'RECESS', 'SUBJECTS', 'CRAYONS', 'GRADES',
-    'MATH', 'SCHOOL', 'TEACHER', 'DESK', 'HEALTH',
-    'MUSIC', 'SCISSORS', 'WRITING'
-]
-
 # processed_image = process_image(input_image)
-# letter_coordinates = find_letter_coordinates(processed_image)
+# letter_coordinates, tc, tl = find_letter_coordinates(processed_image)
+# print("TOTAL CONTOURS WITHOUT DENOISING: ", tc, "\nTOTAL LETTERS: ", tl)
 # letter_grid = identify_letter_grid(model, processed_image, letter_coordinates)
+
 # output = strike_words(input_image, word_list, letter_grid, letter_coordinates)
 # cv2.imshow("solved", output)
 # cv2.waitKey(0)
