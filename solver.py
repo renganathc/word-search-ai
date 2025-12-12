@@ -19,6 +19,10 @@ def find_letter_coordinates(processed_image):
     contours, _ = cv2.findContours(processed_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     area = 0
 
+    #debug_image = input_image.copy()
+
+    print("contours before filtering: ", len(contours))
+
     for cnt in contours:
         area += cv2.contourArea(cnt)
 
@@ -27,10 +31,16 @@ def find_letter_coordinates(processed_image):
     letter_coordinates = dict()
     y_top, y_bottom = -1,-1
 
+    c = 0
+
     for i in range(len(contours)):
         if cv2.contourArea(contours[i]) < 0.1*area:
             continue
         x, y, w, h = cv2.boundingRect(contours[i])
+
+        c += 1
+
+        #cv2.rectangle(debug_image, (x, y), (x+w, y+h), (0, 255, 0), 1)
 
         pushed = False
 
@@ -42,6 +52,11 @@ def find_letter_coordinates(processed_image):
 
         if not pushed:
             letter_coordinates[(y, y+w)] = [(x - int(w*(0.25)), y - int(h*(0.25)), x + w + int(w*(0.25)), y + h + int(h*(0.25)))]
+
+    # cv2.imshow("debug", debug_image[:200, :200])
+    # cv2.waitKey(0)
+
+    print("contours after filtering: ", c)
 
     return letter_coordinates
             
@@ -55,8 +70,11 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
 
     all_images = list()
 
+    letters = 0
+
     for i in reversed(letter_coordinates.values()):
         for j in i:
+            letters += 1
             x1, y1, x2, y2 = j
             if not letter_width:
                 letter_width = y2 - y1
@@ -76,6 +94,8 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
     predictions = model.predict(all_images, len(all_images))
 
     letter_grid = list()
+
+    print("LETTERS FOUND: ",letters, "\nLETTERS PREDICTED: ", len(predictions))
 
     for prediction in predictions:
         letter_grid.append(chr(np.argmax(prediction) + 65))
