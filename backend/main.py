@@ -4,8 +4,17 @@ import numpy as np
 import cv2
 import tensorflow as tf
 from solver import process_image, find_letter_coordinates, identify_letter_grid, strike_words
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],   # im allowin all origins for now
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/solver")
 async def solve(file: UploadFile = File(...), words: str = Form(...)):
