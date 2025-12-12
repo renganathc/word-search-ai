@@ -26,7 +26,7 @@ export default function App() {
     const form_data = new FormData();
     form_data.append("file", imageFile);
     form_data.append("words", wl);
-    const res = await fetch("http://127.0.0.1:8000/solver", {
+    const res = await fetch("https://word-search-ai-5e2p.onrender.com/solver", {
       method: "POST",
       body: form_data
     })
