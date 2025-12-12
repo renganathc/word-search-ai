@@ -1,12 +1,78 @@
-import './App.css'
+import { useState } from "react";
+import "./App.css";
 
-function App() {
+export default function App() {
+  const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [solved, setSolved] = useState(false);
+  const [wordList, setWordList] = useState("");
+
+  function handleFileChange(e) {
+    const file = e.target.files?.[0] ?? null;
+    if (!file) return;
+
+    setImageFile(file);
+
+    if (preview) URL.revokeObjectURL(preview);
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+  }
+
+  async function solve() {
+    const wl = wordList.trim().replace(/[^A-Za-z,]/g, "").toUpperCase()
+    if (!imageFile || !wl) {
+      return -1
+    }
+    const form_data = new FormData();
+    form_data.append("file", imageFile);
+    form_data.append("words", wl);
+    const res = await fetch("http://127.0.0.1:8000/solver", {
+      method: "POST",
+      body: form_data
+    })
+    console.log(res.status)
+    const img_blob = await res.blob();
+    console.log(img_blob)
+    URL.revokeObjectURL(preview);
+    setPreview(URL.createObjectURL(img_blob));
+  }
 
   return (
-    <>
-      
-    </>
-  )
-}
+    <div className="container">
 
-export default App
+      <h1 className="heading">Word Search AI - Word Puzzle Solver</h1>
+
+      <div className="upload-section">
+        <label className="upload-label">
+          Upload Image
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+        </label>
+      </div>
+
+      {preview && (
+        <div className="preview-section">
+          <img src={preview} className="preview-img" alt="preview" />
+        </div>
+      )}
+
+      <div className="words-section">
+        <label>Words (comma-separated):</label>
+        <textarea
+          className="words-box"
+          placeholder="APPLE, ORANGE, BANANA"
+          value={wordList}
+          onChange={(e) => setWordList(e.target.value)}
+          rows={3}
+        />
+      </div>
+
+      <button className="solve-btn" onClick={solve}>
+        Solve
+      </button>
+    </div>
+  );
+}

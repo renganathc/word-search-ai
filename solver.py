@@ -5,8 +5,8 @@ from PIL import Image
 from crossword_algorithm import find_words
 import random
 
-# input_image = cv2.imread("image_samples/word_search_school.png")
-# model = tf.keras.models.load_model("font_identifier.keras")
+input_image = cv2.imread("image_samples/word_search_snacks.png")
+model = tf.keras.models.load_model("font_identifier.keras")
 
 def process_image(input_image):
     processed_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
@@ -81,6 +81,7 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
         letter_grid.append(chr(np.argmax(prediction) + 65))
 
     letter_grid = np.array(letter_grid)
+    print(letter_grid)
     letter_grid = letter_grid.reshape((len(letter_coordinates.values()), len(list(letter_coordinates.values())[0])))
     letter_grid = letter_grid.tolist()
 
@@ -125,9 +126,9 @@ word_list = [
     'MUSIC', 'SCISSORS', 'WRITING'
 ]
 
-# processed_image = process_image(input_image)
-# letter_coordinates = find_letter_coordinates(processed_image)
-# letter_grid = identify_letter_grid(model, processed_image, letter_coordinates)
-# output = strike_words(input_image, word_list, letter_grid, letter_coordinates)
-# cv2.imshow("solved", output)
-# cv2.waitKey(0)
+processed_image = process_image(input_image)
+letter_coordinates = find_letter_coordinates(processed_image)
+letter_grid = identify_letter_grid(model, processed_image, letter_coordinates)
+#output = strike_words(input_image, word_list, letter_grid, letter_coordinates)
+#cv2.imshow("solved", output)
+#cv2.waitKey(0)
