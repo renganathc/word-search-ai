@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
+
+  useEffect(() => {
+    toast.success("The solver currently works only for perfectly aligned grids. Preferably ones downloaded");
+  }, []);
+
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [solved, setSolved] = useState(false);
@@ -49,7 +56,9 @@ export default function App() {
     <div className="container">
 
       <h1 className="heading">Word Search AI - Word Puzzle Solver</h1>
+      <ToastContainer />
 
+      { !preview ?
       <div className="upload-section">
         <label className="upload-label">
           Upload Image
@@ -60,6 +69,8 @@ export default function App() {
           />
         </label>
       </div>
+      : null 
+      }
 
       {preview && (
         <div className="preview-section">
