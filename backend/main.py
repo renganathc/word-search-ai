@@ -17,13 +17,14 @@ app.add_middleware(
     expose_headers=["Total-Contours-Before-Denoising", "Total-Letters"] #log purposes
 )
 
+model = tf.keras.models.load_model("font_identifier.keras")
+
 @app.post("/solver")
 async def solve(file: UploadFile = File(...), words: str = Form(...)):
     img_bytes = await file.read()
     np_arr = np.frombuffer(img_bytes, np.uint8)
     img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-    model = tf.keras.models.load_model("font_identifier.keras")
     word_list = words.split(',')
 
     processed_image = process_image(img)
