@@ -26,7 +26,7 @@ async def solve(file: UploadFile = File(...), words: str = Form(...)):
     word_list = words.split(',')
 
     processed_image = process_image(img)
-    letter_coordinates = find_letter_coordinates(processed_image)
+    letter_coordinates, total_contours, total_letters = find_letter_coordinates(processed_image)
     letter_grid = identify_letter_grid(model, processed_image, letter_coordinates)
     output = strike_words(img, word_list, letter_grid, letter_coordinates)
 
