@@ -3,6 +3,18 @@ import "./App.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+function downloadBlob(url) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "word_search_solved";
+
+  document.body.appendChild(a);
+  a.click();
+  toast.success("Solved file downloaded");
+
+  document.body.removeChild(a);
+}
+
 export default function App() {
 
   useEffect(() => {
@@ -32,6 +44,7 @@ export default function App() {
       return -1
     }
     setLoading(true)
+    setPreview("/solving.gif")
     try {
       const form_data = new FormData();
       form_data.append("file", imageFile);
@@ -45,6 +58,7 @@ export default function App() {
       console.log(img_blob)
       URL.revokeObjectURL(preview);
       setPreview(URL.createObjectURL(img_blob));
+      setSolved(true)
     } catch (err) {
       console.error(err)
     } finally {
@@ -78,6 +92,7 @@ export default function App() {
         </div>
       )}
 
+      {!solved ? ( <>
       <div className="words-section">
         <label>Words (comma-separated):</label>
         <textarea
@@ -88,10 +103,14 @@ export default function App() {
           rows={3}
         />
       </div>
-
       <button className="solve-btn" onClick={solve} disabled={loading} style={{backgroundColor: loading ? "#2247c1ff" : "#2c5cff"}}>
         {loading ? "Solving…" : "Solve"}
-      </button>
+      </button> 
+      </> )
+      : <button className="solve-btn" onClick={() => downloadBlob(preview)} style={{backgroundColor: "#c43f1aff", marginTop: 7}}>
+        Download
+      </button> 
+      }
     </div>
   );
 }
