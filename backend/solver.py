@@ -96,6 +96,9 @@ def strike_words(input_image, word_list, letter_grid, letter_coordinates):
     input_image_cpy = input_image.copy()
     letter_width=None
 
+    if len(word_position) == 0:
+        return input_image      # no words found
+
     for x in word_position:
         start_word_pos, end_word_pos = x
         k = list(reversed(letter_coordinates.values()))
