@@ -14,6 +14,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Total-Contours-Before-Denoising", "Total-Letters"] #log purposes
 )
 
 @app.post("/solver")
@@ -36,4 +37,7 @@ async def solve(file: UploadFile = File(...), words: str = Form(...)):
     _, buffer = cv2.imencode(".png", output)
     png_bytes = buffer.tobytes()
 
-    return Response(content=png_bytes, media_type="image/png")
+    # log purposes
+    headers = {"Total-Contours-Before-Denoising": str(total_contours), "Total-Letters": str(total_letters)}
+
+    return Response(content=png_bytes, media_type="image/png", headers=headers)
