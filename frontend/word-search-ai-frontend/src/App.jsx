@@ -6,6 +6,7 @@ export default function App() {
   const [preview, setPreview] = useState(null);
   const [solved, setSolved] = useState(false);
   const [wordList, setWordList] = useState("");
+  const [loading, setLoading] = useState(false)
 
   function handleFileChange(e) {
     const file = e.target.files?.[0] ?? null;
@@ -23,18 +24,25 @@ export default function App() {
     if (!imageFile || !wl) {
       return -1
     }
-    const form_data = new FormData();
-    form_data.append("file", imageFile);
-    form_data.append("words", wl);
-    const res = await fetch("https://word-search-ai-5e2p.onrender.com/solver", {
-      method: "POST",
-      body: form_data
-    })
-    console.log(res.status)
-    const img_blob = await res.blob();
-    console.log(img_blob)
-    URL.revokeObjectURL(preview);
-    setPreview(URL.createObjectURL(img_blob));
+    setLoading(true)
+    try {
+      const form_data = new FormData();
+      form_data.append("file", imageFile);
+      form_data.append("words", wl);
+      const res = await fetch("https://word-search-ai-5e2p.onrender.com/solver", {
+        method: "POST",
+        body: form_data
+      })
+      console.log(res.status)
+      const img_blob = await res.blob();
+      console.log(img_blob)
+      URL.revokeObjectURL(preview);
+      setPreview(URL.createObjectURL(img_blob));
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -70,8 +78,8 @@ export default function App() {
         />
       </div>
 
-      <button className="solve-btn" onClick={solve}>
-        Solve
+      <button className="solve-btn" onClick={solve} disabled={loading} style={{backgroundColor: loading ? "#2247c1ff" : "#2c5cff"}}>
+        {loading ? "Solving…" : "Solve"}
       </button>
     </div>
   );
