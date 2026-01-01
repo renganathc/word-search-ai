@@ -6,7 +6,8 @@ from crossword_algorithm import find_words
 import random
 
 # input_image = cv2.imread("image_samples/word_search_snacks.png")
-# model = tf.keras.models.load_model("font_identifier.keras")
+# word_list = ['A', 'B', 'C']
+# model = tf.keras.models.load_model("backend/font_identifier.keras")
 
 def process_image(input_image):
     processed_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
@@ -29,7 +30,7 @@ def find_letter_coordinates(processed_image):
 
     for i in range(total_contours):
         if cv2.contourArea(contours[i]) < 0.1*area:
-            total_letters -= 0
+            total_letters -= 1
             continue
         x, y, w, h = cv2.boundingRect(contours[i])
         pushed = False
@@ -51,11 +52,12 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
 
     for i in letter_coordinates.keys():
         letter_coordinates[i] = sorted(letter_coordinates[i], key=lambda x: x[0])
-        #print(letter_coordinates[i])
 
     all_images = list()
+    row_lengths = list()
 
     for i in reversed(letter_coordinates.values()):
+        row_lengths.append(len(i))
         for j in i:
             x1, y1, x2, y2 = j
             if not letter_width:
@@ -74,20 +76,14 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
 
     all_images = np.array(all_images)
     predictions = model.predict(all_images, len(all_images))
+    idx = 0
 
-    letter_grid = list()
-
-    for prediction in predictions:
-        letter_grid.append(chr(np.argmax(prediction) + 65))
-
-    letter_grid = np.array(letter_grid)
-    letter_grid = letter_grid.reshape((len(letter_coordinates.values()), len(list(letter_coordinates.values())[0])))
-    letter_grid = letter_grid.tolist()
-
-    for row in letter_grid:
-        for letter in row:
-            print(letter, end=" ")
-        print("")
+    for length in row_lengths:
+        row = []
+        for i in range(length):
+            row.append(chr(np.argmax(predictions[idx]) + 65))
+            idx += 1
+        letter_grid.append(row)
 
     return letter_grid
 
@@ -118,13 +114,18 @@ def strike_words(input_image, word_list, letter_grid, letter_coordinates):
     return output_image
 
 # processed_image = process_image(input_image)
-# cv2.imshow("original", input_image[:200, :200])
-# cv2.imshow("thresholded", processed_image[:200, :200])
-# cv2.waitKey(0)
+# cv2.imshow("original", input_image)
+# cv2.imshow("thresholded", processed_image)
+# cv2.waitKey(1000)
 
 # letter_coordinates, tc, tl = find_letter_coordinates(processed_image)
 # print("TOTAL CONTOURS WITHOUT DENOISING: ", tc, "\nTOTAL LETTERS: ", tl)
 # letter_grid = identify_letter_grid(model, processed_image, letter_coordinates)
+
+# for row in letter_grid:
+#     for ltr in row:
+#         print(ltr, end=" ")
+#     print("")
 
 # output = strike_words(input_image, word_list, letter_grid, letter_coordinates)
 # cv2.imshow("solved", output)
