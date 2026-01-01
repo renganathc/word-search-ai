@@ -36,7 +36,7 @@ def find_letter_coordinates(processed_image):
         pushed = False
 
         for key in letter_coordinates.keys():
-            if y + h//2 in range(key[0], key[1]):
+            if key[0] <= y + 0.1*h <= key[1] or key[0] <= y + 0.9*h <= key[1]:
                 letter_coordinates[key].append((x - int((w)*(0.25)), y - int(h*(0.25)), x + w + int(w*(0.25)), y + h + int(h*(0.25))))
                 pushed = True
                 break
