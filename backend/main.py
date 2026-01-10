@@ -30,6 +30,10 @@ async def solve(file: UploadFile = File(...), words: str = Form(...)):
     processed_image = process_image(img)
     letter_coordinates, total_contours, total_letters = find_letter_coordinates(processed_image)
     letter_grid = identify_letter_grid(model, processed_image, letter_coordinates)
+    for row in letter_grid:
+        for ltr in row:
+            print(ltr, end=" ")
+        print("")
     output = strike_words(img, word_list, letter_grid, letter_coordinates)
 
     # cv2.imshow("debu g", output)
