@@ -22,7 +22,7 @@ def process_image(input_image):
     block_size = block_size if block_size % 2 == 1 else block_size + 1
     processed_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
     processed_image = cv2.GaussianBlur(processed_image, (3,3), 0.15)
-    processed_image = cv2.adaptiveThreshold(processed_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, 26)
+    processed_image = cv2.adaptiveThreshold(processed_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, 38)
     return processed_image
 
 
@@ -46,12 +46,12 @@ def find_letter_coordinates(processed_image):
 
         for key in letter_coordinates.keys():
             if key[0] <= y + 0.1*h <= key[1] or key[0] <= y + 0.9*h <= key[1]:
-                letter_coordinates[key].append((x - int((w)*(0.25)), y - int(h*(0.25)), x + w + int(w*(0.25)), y + h + int(h*(0.25))))
+                letter_coordinates[key].append((x, y, x + w, y + h))
                 pushed = True
                 break
 
         if not pushed:
-            letter_coordinates[(y, y+h)] = [(x - int(w*(0.25)), y - int(h*(0.25)), x + w + int(w*(0.25)), y + h + int(h*(0.25)))]
+            letter_coordinates[(y, y+h)] = [(x, y, x + w, y + h)]
 
     return letter_coordinates, total_contours, total_letters
             
@@ -73,7 +73,7 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
                 letter_width = y2 - y1
             img = processed_image[y1:y2, x1:x2]
             img = Image.fromarray(img)
-            img.thumbnail((28, 28), Image.Resampling.LANCZOS) #lacnzos is a downsizing filter
+            img.thumbnail((18, 18), Image.Resampling.LANCZOS) #lacnzos is a downsizing filter
 
             pillow_image = Image.new("L", (28, 28), 0)
             pillow_image.paste(img, ((28 - img.size[0]) // 2, (28 - img.size[1]) // 2))
