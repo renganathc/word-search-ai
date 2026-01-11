@@ -20,7 +20,7 @@ def process_image(input_image):
     block_size = int(min(h, w) * 0.8)
     block_size = block_size if block_size % 2 == 1 else block_size + 1
     processed_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
-    processed_image = cv2.GaussianBlur(processed_image, (3,3), 0.15)
+    #processed_image = cv2.GaussianBlur(processed_image, (3,3), 0.15)
     processed_image = cv2.adaptiveThreshold(processed_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, 55)
     contour_extraction_image = cv2.morphologyEx(processed_image, cv2.MORPH_CLOSE, np.ones((6,6), np.uint8)) # I fill gaps here leading to reliable contour extraction
     return processed_image, contour_extraction_image
@@ -101,7 +101,7 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
 def strike_words(input_image, word_list, letter_grid, letter_coordinates):
     word_position = find_words(letter_grid, word_list)
     input_image_cpy = input_image.copy()
-    letter_width=None
+    letter_height=None
 
     if len(word_position) == 0:
         return input_image      # no words found
@@ -111,15 +111,15 @@ def strike_words(input_image, word_list, letter_grid, letter_coordinates):
         k = list(reversed(letter_coordinates.values()))
         start = k[start_word_pos[0]][start_word_pos[1]]
         end = k[end_word_pos[0]][end_word_pos[1]]
-        color = random.sample(range(30, 200), 3)
-
-        if not letter_width:
+        cl1, cl2 = random.sample(range(50, 170), 2)
+        color = (cl1, cl2, min(340 - cl1 - cl1, 170))
+        if not letter_height:
             x1, y1, x2, y2 = k[0][0]
-            letter_width = y2 - y1
+            letter_height = y2 - y1
 
-        result = cv2.line(input_image, ((start[0] + start[2]) // 2 - 2, (start[1] + start[3]) // 2 - 2) , ((end[0] + end[2]) // 2 + 2, (end[1] + end[3]) // 2 + 2) , color, letter_width*10//14)
+        result = cv2.line(input_image, ((start[0] + start[2]) // 2 - 2, (start[1] + start[3]) // 2 - 2) , ((end[0] + end[2]) // 2 + 2, (end[1] + end[3]) // 2 + 2) , color, letter_height)
         
-    alpha = 0.45
+    alpha = 0.40
     output_image = cv2.addWeighted(result, alpha, input_image_cpy, 1 - alpha, 0)
 
     return output_image
