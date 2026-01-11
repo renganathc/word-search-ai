@@ -5,29 +5,29 @@ from PIL import Image
 from crossword_algorithm import find_words
 import random
 
-
-# This preproceesing part of the image was extremely time consuming. I tried out multiple ways to remove watermakrs, creases on the paper,
+# The preproceesing part of the image was extremely time consuming. I tried out multiple ways to remove watermakrs, creases on the paper,
 # etc and get the letters alone clearly visible. After a lot of experimenting i figured out making the block size larger and 
 # more importantly sizing it relative to the image dimensions did wonders.
 
 
 
 # input_image = cv2.imread("image_samples/word_search_snacks.png")
-# word_list = ['A', 'B', 'C']
+# word_list = ['A', 'B', 'C', 'POPSICLE', 'AB']
 # model = tf.keras.models.load_model("backend/font_identifier.keras")
 
 def process_image(input_image):
     h, w = input_image.shape[:2]
-    block_size = int(min(h, w) * 0.22)
+    block_size = int(min(h, w) * 0.8)
     block_size = block_size if block_size % 2 == 1 else block_size + 1
     processed_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
     processed_image = cv2.GaussianBlur(processed_image, (3,3), 0.15)
-    processed_image = cv2.adaptiveThreshold(processed_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, 38)
-    return processed_image
+    processed_image = cv2.adaptiveThreshold(processed_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, 55)
+    contour_extraction_image = cv2.morphologyEx(processed_image, cv2.MORPH_CLOSE, np.ones((6,6), np.uint8)) # I fill gaps here leading to reliable contour extraction
+    return processed_image, contour_extraction_image
 
 
-def find_letter_coordinates(processed_image):
-    contours, _ = cv2.findContours(processed_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+def find_letter_coordinates(contour_extraction_image):
+    contours, _ = cv2.findContours(contour_extraction_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     total_contours, total_letters = len(contours), len(contours)
     area = 0
 
@@ -79,7 +79,7 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
             pillow_image.paste(img, ((28 - img.size[0]) // 2, (28 - img.size[1]) // 2))
 
             img = np.array(pillow_image)
-            img = cv2.erode(img, np.ones((2,2), np.uint8))
+            #img = cv2.erode(img, np.ones((2,2), np.uint8))
             img = img.reshape((28,28,1))
             img = img/255.0
 
@@ -124,12 +124,11 @@ def strike_words(input_image, word_list, letter_grid, letter_coordinates):
 
     return output_image
 
-# processed_image = process_image(input_image)
+# processed_image, contour_extraction_image = process_image(input_image)
 # cv2.imshow("original", input_image)
-# cv2.imshow("thresholded", processed_image)
 # cv2.waitKey(1000)
 
-# letter_coordinates, tc, tl = find_letter_coordinates(processed_image)
+# letter_coordinates, tc, tl = find_letter_coordinates(contour_extraction_image)
 # print("TOTAL CONTOURS WITHOUT DENOISING: ", tc, "\nTOTAL LETTERS: ", tl)
 # letter_grid = identify_letter_grid(model, processed_image, letter_coordinates)
 
@@ -139,5 +138,7 @@ def strike_words(input_image, word_list, letter_grid, letter_coordinates):
 #     print("")
 
 # output = strike_words(input_image, word_list, letter_grid, letter_coordinates)
+# cv2.imshow("thresholded", processed_image)
+# cv2.imshow("contour ex", contour_extraction_image)
 # cv2.imshow("solved", output)
 # cv2.waitKey(0)
