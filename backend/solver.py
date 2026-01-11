@@ -5,15 +5,24 @@ from PIL import Image
 from crossword_algorithm import find_words
 import random
 
+
+# This preproceesing part of the image was extremely time consuming. I tried out multiple ways to remove watermakrs, creases on the paper,
+# etc and get the letters alone clearly visible. After a lot of experimenting i figured out making the block size larger and 
+# more importantly sizing it relative to the image dimensions did wonders.
+
+
+
 # input_image = cv2.imread("image_samples/word_search_snacks.png")
 # word_list = ['A', 'B', 'C']
 # model = tf.keras.models.load_model("backend/font_identifier.keras")
 
 def process_image(input_image):
+    h, w = input_image.shape[:2]
+    block_size = int(min(h, w) * 0.22)
+    block_size = block_size if block_size % 2 == 1 else block_size + 1
     processed_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
     processed_image = cv2.GaussianBlur(processed_image, (3,3), 0.15)
-    processed_image = cv2.adaptiveThreshold(processed_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 33, 28)
-    #processed_image = cv2.morphologyEx(processed_image, cv2.MORPH_CLOSE, np.ones((3,3), np.uint8))
+    processed_image = cv2.adaptiveThreshold(processed_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, 26)
     return processed_image
 
 
@@ -69,7 +78,9 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
             pillow_image = Image.new("L", (28, 28), 0)
             pillow_image.paste(img, ((28 - img.size[0]) // 2, (28 - img.size[1]) // 2))
 
-            img = np.array(pillow_image).reshape((28,28,1))
+            img = np.array(pillow_image)
+            img = cv2.erode(img, np.ones((2,2), np.uint8))
+            img = img.reshape((28,28,1))
             img = img/255.0
 
             all_images.append(img)
