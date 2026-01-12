@@ -2,7 +2,7 @@ def recursive_search(position: tuple[int], search_dir: tuple[int], word: str, in
 
     if search_dir == (0,0): # or can use index == 1
         if index >= len(word):
-            coordinates.append(((position[0], position[1]), (position[0], position[1])))
+            coordinates.append(((position[0], position[1]), (position[0], position[1]))) #for single letter case
             return 0
         result2 = -1
         for i in range(max(0, position[0] - 1), min(len(crossword) - 1, position[0] + 1) + 1):
