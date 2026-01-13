@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "trie_engine.h"
 
 struct Node {
     struct Node* children[26];
@@ -76,27 +77,27 @@ struct Node* prefix_search(struct Node* prev_state, char letter) {
     }
 }
 
-int main() {
-    create_trie();
-    addWordsFromDoc();
-    char test_word[20] = "TESTING";
-    int length = strlen(test_word);
+// int main() {
+//     create_trie();
+//     addWordsFromDoc();
+//     char test_word[20] = "TESTING";
+//     int length = strlen(test_word);
 
-    struct Node* state = NULL;
-    int found = 1;
+//     struct Node* state = NULL;
+//     int found = 1;
 
-    for(int i = 0; i < length; i++) {
-        state = prefix_search(state, *(test_word+i));
-        if (!state) {
-            printf("\nnot found");
-            found = 0;
-            break;
-        }
-    }
+//     for(int i = 0; i < length; i++) {
+//         state = prefix_search(state, *(test_word+i));
+//         if (!state) {
+//             printf("\nnot found");
+//             found = 0;
+//             break;
+//         }
+//     }
 
-    if (found) printf("found");
+//     if (found) printf("found");
 
-    return 0;
-}
+//     return 0;
+// }
 
 
