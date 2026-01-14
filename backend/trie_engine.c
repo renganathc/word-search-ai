@@ -45,7 +45,7 @@ void addWord(char* word) {
 void addWordsFromDoc() {
     char buffer[50];
     //FILE* fp = fopen("english-words.txt", "r");
-    FILE* fp = fopen("words_alpha.txt", "r");
+    FILE* fp = fopen("backend/words_alpha.txt", "r");
     if (!fp) {
         perror("Failed to open file");
         return;
