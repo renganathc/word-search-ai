@@ -45,7 +45,7 @@ void addWord(char* word) {
 void addWordsFromDoc() {
     char buffer[50];
     //FILE* fp = fopen("english-words.txt", "r");
-    FILE* fp = fopen("backend/words_alpha.txt", "r");
+    FILE* fp = fopen("words_alpha.txt", "r");
     if (!fp) {
         perror("Failed to open file");
         return;
@@ -66,13 +66,15 @@ void addWordsFromDoc() {
     printf("Added %d words into prefix tree\n\n", count);
 }
 
-struct Node* prefix_search(struct Node* prev_state, char letter) {
+struct Node* prefix_search(struct Node* prev_state, char letter, int* wordFound) {
     if (!prev_state) {
         prev_state = root;
     }
     if (prev_state->children[(int)letter - 65]) {
+        *wordFound = prev_state->children[(int)letter - 65]->isWord;
         return prev_state->children[(int)letter - 65];
     } else {
+        *wordFound = 0;
         return NULL;
     }
 }
@@ -80,22 +82,28 @@ struct Node* prefix_search(struct Node* prev_state, char letter) {
 // int main() {
 //     create_trie();
 //     addWordsFromDoc();
-//     char test_word[20] = "TESTING";
+//     char test_word[20] = "TESTINGN";
 //     int length = strlen(test_word);
 
 //     struct Node* state = NULL;
 //     int found = 1;
+//     int* wordFound;
+//     *wordFound = 0;
 
 //     for(int i = 0; i < length; i++) {
-//         state = prefix_search(state, *(test_word+i));
+//         state = prefix_search(state, *(test_word+i), wordFound);
+//         printf("%c", *(test_word+i));
 //         if (!state) {
-//             printf("\nnot found");
+//             printf("\ninput not found");
 //             found = 0;
 //             break;
 //         }
+//         if (*wordFound == 1) {
+//             printf("-(word found)\n");
+//         }
 //     }
 
-//     if (found) printf("found");
+//     if (found) printf("input found");
 
 //     return 0;
 // }
