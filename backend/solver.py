@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 import tensorflow as tf
 from PIL import Image
-from crossword_algorithm import find_words
+from manual_solver import find_words
 import random
-from auto_solve import auto_find_words
+from auto_solver import auto_find_words
 
 
 # The preproceesing part of the image was extremely time consuming to perfect. I tried out multiple ways to remove watermakrs, creases on the paper,
@@ -94,8 +94,14 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
 
     return letter_grid
 
-def strike_words(input_image, word_list, letter_grid, letter_coordinates):
-    word_position = auto_find_words(letter_grid)
+def strike_words(input_image, letter_grid, letter_coordinates, search_method="auto", word_list=[]):
+    if search_method == "auto":
+        word_position = auto_find_words(letter_grid)
+    elif search_method == "manual":
+        word_position = find_words(letter_grid, word_list)
+    else:
+        print("invalid search_method arg entered")
+        return -1
     input_image_cpy = input_image.copy()
     letter_height=None
 
@@ -138,7 +144,7 @@ def strike_words(input_image, word_list, letter_grid, letter_coordinates):
 #         print(ltr, end=" ")
 #     print("")
 
-# output = strike_words(input_image, word_list, letter_grid, letter_coordinates)
+# output = strike_words(input_image, letter_grid, letter_coordinates, "auto")
 # cv2.imshow("thresholded", processed_image)
 # cv2.imshow("contour ex", contour_extraction_image)
 # cv2.imshow("solved", output)
