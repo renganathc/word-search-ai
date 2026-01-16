@@ -20,24 +20,27 @@ app.add_middleware(
 model = tf.keras.models.load_model("font_identifier.keras")
 
 @app.post("/solver")
-async def solve(file: UploadFile = File(...), words: str = Form(...)):
+async def solve(file: UploadFile = File(...), words: str = Form(""), solver_type: str = Form(...)):
     img_bytes = await file.read()
     np_arr = np.frombuffer(img_bytes, np.uint8)
     img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
+    if img is None:
+        return Response(
+            content="Invalid or unsupported image file",
+            status_code=400
+        )
+
     word_list = words.split(',')
 
-    processed_image = process_image(img)
-    letter_coordinates, total_contours, total_letters = find_letter_coordinates(processed_image)
+    processed_image, contour_extraction_image = process_image(img)
+    letter_coordinates, total_contours, total_letters = find_letter_coordinates(contour_extraction_image)
     letter_grid = identify_letter_grid(model, processed_image, letter_coordinates)
     for row in letter_grid:
         for ltr in row:
             print(ltr, end=" ")
         print("")
-    output = strike_words(img, word_list, letter_grid, letter_coordinates)
-
-    # cv2.imshow("debu g", output)
-    # cv2.waitKey(20)
+    output = strike_words(img, letter_grid, letter_coordinates, solver_type, word_list)
 
     _, buffer = cv2.imencode(".png", output)
     png_bytes = buffer.tobytes()

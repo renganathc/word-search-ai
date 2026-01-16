@@ -60,7 +60,7 @@
   font-size: 14px;
 }
 
-.solve-btn {
+.solve-btn, .auto-solve-btn {
   padding: 12px;
   border: none;
   background: #2c5cff;
@@ -70,4 +70,24 @@
   font-weight: 600;
   cursor: pointer;
   width: 80%;
+}
+
+.auto-solve-btn:hover {
+  opacity: 90%;
+}
+
+.manual-solve-btn {
+  padding: 12px;
+  border: 1px solid #2c5cff;
+  background: rgba(32, 53, 115, 0.044);
+  color: #2c5cff;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 80%;
+}
+
+.manual-solve-btn:hover {
+  background: rgba(32, 53, 115, 0.475);
 }

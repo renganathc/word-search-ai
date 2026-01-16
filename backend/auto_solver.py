@@ -1,3 +1,4 @@
+import os
 from cffi import FFI
 
 ffi = FFI()
@@ -12,7 +13,8 @@ struct Node* prefix_search(struct Node* prev_state, char letter, int* wordFound)
 
 """)
 
-lib = ffi.dlopen("libtrie_engine.so")
+HERE = os.path.dirname(os.path.abspath(__file__)) #for docker containers
+lib = ffi.dlopen(HERE + "/libtrie_engine.so")
 
 lib.create_trie()
 lib.addWordsFromDoc()
