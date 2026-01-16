@@ -4,16 +4,12 @@ import tensorflow as tf
 from PIL import Image
 from crossword_algorithm import find_words
 import random
+from auto_solve import auto_find_words
 
-# The preproceesing part of the image was extremely time consuming. I tried out multiple ways to remove watermakrs, creases on the paper,
+
+# The preproceesing part of the image was extremely time consuming to perfect. I tried out multiple ways to remove watermakrs, creases on the paper,
 # etc and get the letters alone clearly visible. After a lot of experimenting i figured out making the block size larger and 
 # more importantly sizing it relative to the image dimensions did wonders.
-
-
-
-# input_image = cv2.imread("image_samples/word_search_snacks.png")
-# word_list = ['A', 'B', 'C', 'POPSICLE', 'AB']
-# model = tf.keras.models.load_model("backend/font_identifier.keras")
 
 def process_image(input_image):
     h, w = input_image.shape[:2]
@@ -99,7 +95,7 @@ def identify_letter_grid(model, processed_image, letter_coordinates):
     return letter_grid
 
 def strike_words(input_image, word_list, letter_grid, letter_coordinates):
-    word_position = find_words(letter_grid, word_list)
+    word_position = auto_find_words(letter_grid)
     input_image_cpy = input_image.copy()
     letter_height=None
 
@@ -123,6 +119,11 @@ def strike_words(input_image, word_list, letter_grid, letter_coordinates):
     output_image = cv2.addWeighted(result, alpha, input_image_cpy, 1 - alpha, 0)
 
     return output_image
+
+
+# input_image = cv2.imread("../image_samples/word_search_snacks.png")
+# word_list = ['A', 'B', 'C', 'POPSICLE', 'AB']
+# model = tf.keras.models.load_model("font_identifier.keras")
 
 # processed_image, contour_extraction_image = process_image(input_image)
 # cv2.imshow("original", input_image)
